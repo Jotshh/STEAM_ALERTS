@@ -1,6 +1,6 @@
 # Promoção na Steam 
 
-<!-- ![preview](./.github/preview.png) -->
+![preview](./.github/preview.png)
 
 ![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat&logo=python&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions&logoColor=white)
