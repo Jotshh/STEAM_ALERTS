@@ -1,4 +1,4 @@
-# Steam Deal Alert
+# Promoção na Steam 
 
 <!-- ![preview](./.github/preview.png) -->
 
@@ -8,7 +8,7 @@
 ![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white)
 ![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=flat&logo=pytest&logoColor=white)
 
-Monitor automático de promoções da Steam. O projeto consulta os preços de jogos escolhidos na loja brasileira (BRL) e envia um alerta para um canal do Discord quando o desconto atinge o mínimo definido para cada jogo. Roda inteiro no GitHub Actions, sem servidor, sem banco de dados e sem custo.
+Monitor automático de promoções da Steam. Consulta os preços dos jogos configurados na loja brasileira (BRL) e envia alertas para um canal do Discord quando o desconto atinge o mínimo definido para cada jogo. Roda no GitHub Actions, sem servidor dedicado ou banco de dados. O custo de execução depende da visibilidade do repositório e do plano do GitHub.
 
 ---
 
@@ -16,7 +16,7 @@ Monitor automático de promoções da Steam. O projeto consulta os preços de jo
 
 O monitor roda sozinho a cada 30 minutos pelo GitHub Actions. Para executar na hora: aba **Actions** > **Steam Monitor** > **Run workflow**.
 
-https://github.com/Jotshh/steam-deal-alert/actions
+[Abrir as execuções do workflow](https://github.com/Jotshh/STEAM_ALERTS/actions)
 
 ---
 
@@ -37,6 +37,7 @@ https://github.com/Jotshh/steam-deal-alert/actions
 - Monitoramento de vários jogos ao mesmo tempo, cada um com desconto mínimo próprio
 - Adicionar, remover ou pausar jogos só editando `config/games.json`
 - Alerta em embed do Discord com imagem, preço original, preço promocional, desconto, economia, link da Steam e horário
+- Identidade do alerta no Discord: **Promoção na Steam**; o título do embed mostra também o nome do jogo
 - Cor do embed muda conforme o tamanho do desconto
 - Controle de duplicidade por App ID, desconto e estado da promoção
 - Histórico em `data/alerts.json`, salvo pelo próprio workflow com commit automático só quando há mudança
@@ -60,10 +61,8 @@ https://github.com/Jotshh/steam-deal-alert/actions
 ## Estrutura do Projeto
 
 ```
-steam-deal-alert/
-├── .github/
-│   └── workflows/
-│       └── steam-monitor.yml
+STEAM_ALERTS/
+├── .github/workflows/steam-monitor.yml
 ├── src/
 │   └── steam_alert/
 │       ├── main.py
@@ -77,11 +76,11 @@ steam-deal-alert/
 ├── data/
 │   └── alerts.json
 ├── tests/
-├── requirements.txt
-├── requirements-dev.txt
-├── pytest.ini
 ├── .env.example
-└── LICENSE
+├── .gitignore
+├── pytest.ini
+├── requirements.txt
+└── requirements-dev.txt
 ```
 
 ---
@@ -94,12 +93,12 @@ Configurações do Canal > Integrações > Webhooks > Novo Webhook > Copiar URL 
 
 ### 2. Configurar o secret no GitHub
 
-Settings > Secrets and variables > Actions > New repository secret:
+**Settings > Secrets and variables > Actions > New repository secret**:
 
 - Name: `DISCORD_WEBHOOK_URL`
 - Secret: a URL copiada
 
-Em Settings > Actions > General, deixe **Read and write permissions** para o workflow poder salvar o histórico.
+Em **Settings > Actions > General > Workflow permissions**, selecione **Read and write permissions** para o workflow poder atualizar o histórico. O workflow também declara `contents: write` no YAML.
 
 ### 3. Escolher os jogos
 
@@ -109,8 +108,9 @@ Edite `config/games.json`. O App ID aparece na URL da loja (`store.steampowered.
 { "name": "Elden Ring", "appid": 1245620, "min_discount": 20, "enabled": true }
 ```
 
-- `min_discount`: de 0 a 100
-- `enabled: false` pausa o jogo; para remover, apague o item
+- `min_discount`: desconto mínimo, de 0 a 100. O alerta exige uma promoção ativa.
+- `enabled: false` pausa o jogo; para remover, apague o item.
+- Cada AppID deve aparecer apenas uma vez.
 
 ### 4. Executar localmente
 
@@ -126,6 +126,7 @@ python -m steam_alert.main
 ### 5. Rodar os testes
 
 ```bash
+python -m pip install -r requirements-dev.txt
 python -m pytest
 ```
 
@@ -134,12 +135,14 @@ python -m pytest
 ## Segurança e Qualidade
 
 - A URL do webhook vem só da variável `DISCORD_WEBHOOK_URL` e nunca aparece em logs ou erros
+- No GitHub, guarde a URL em **Settings > Secrets and variables > Actions** como `DISCORD_WEBHOOK_URL`; não coloque o valor real no YAML nem em `games.json`
 - Validação do `games.json` e do `alerts.json`; arquivo corrompido interrompe a execução em vez de ser sobrescrito
 - Timeout, retry com backoff e pausa entre requisições à Steam
 - Tratamento de limite de requisições (429) do Discord
 - `concurrency` no workflow evita execuções simultâneas
 - Permissões mínimas: apenas `contents: write`
 - Lógica de decisão separada das integrações externas, com testes usando mocks
+- Os runners padrão do GitHub são gratuitos para repositórios públicos; em repositórios privados, o uso segue a franquia e as regras de cobrança do plano
 
 ---
 
