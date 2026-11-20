@@ -1,1 +1,20 @@
-{}
+{
+  "105600": {
+    "is_on_sale": false,
+    "last_discount": 0,
+    "last_notified": null,
+    "last_price": 3299
+  },
+  "1621690": {
+    "is_on_sale": false,
+    "last_discount": 0,
+    "last_notified": null,
+    "last_price": 5999
+  },
+  "413150": {
+    "is_on_sale": false,
+    "last_discount": 0,
+    "last_notified": null,
+    "last_price": 2499
+  }
+}
