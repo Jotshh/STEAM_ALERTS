@@ -16,5 +16,35 @@
     "appid": 105600,
     "min_discount": 20,
     "enabled": true
+  },
+  {
+    "name": "Marvel's Spider-Man Remastered",
+    "appid": 1817070,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "The Last of Us Part I",
+    "appid": 1888930,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Luma Island",
+    "appid": 2408820,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Dead by Daylight",
+    "appid": 381210,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Japanese Rural Life Adventure",
+    "appid": 4158870,
+    "min_discount": 20,
+    "enabled": true
   }
 ]
