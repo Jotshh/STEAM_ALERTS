@@ -56,7 +56,7 @@ def build_embed(deal: Deal, now: datetime, previous_discount: int | None = None)
         "inline": False,
     })
     embed: dict[str, Any] = {
-        "author": {"name": "🎮 STEAM DEAL ALERT"},
+        "author": {"name": "🎮 Promoção na Steam 🎮"},
         "title": deal.name,
         "url": deal.url,
         "description": description,
@@ -89,7 +89,7 @@ def send_alert(webhook_url: str, deal: Deal, now: datetime,
                timeout: float = 10.0, max_retries: int = 3,
                sleep: Callable[[float], None] = time.sleep) -> None:
     payload = {
-        "username": "Steam Deal Alert",
+        "username": "Promoção na Steam",
         "embeds": [build_embed(deal, now, previous_discount)],
     }
     http = session or requests

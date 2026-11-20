@@ -38,6 +38,7 @@ def test_format_price():
 def test_embed_content(make_deal):
     embed = build_embed(make_deal(75), NOW)
     assert embed["title"] == "Cyberpunk 2077"
+    assert embed["author"]["name"] == "🎮 Promoção na Steam 🎮"
     assert "~~R$ 199,99~~" in embed["description"]
     assert "75% OFF" in embed["description"] and "R$ 149,99" in embed["description"]
     assert embed["url"].endswith("/app/1091500")
@@ -55,6 +56,7 @@ def test_send_success(make_deal):
     session = FakeSession([FakeResponse(204)])
     send_alert(URL, make_deal(), NOW, session=session, sleep=lambda s: None)
     assert len(session.calls) == 1 and session.calls[0][1]["embeds"]
+    assert session.calls[0][1]["username"] == "Promoção na Steam"
 
 
 def test_rate_limit_then_success(make_deal):
