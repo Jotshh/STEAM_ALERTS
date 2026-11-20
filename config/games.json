@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Stardew Valley",
+    "appid": 413150,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Core Keeper",
+    "appid": 1621690,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Terraria",
+    "appid": 105600,
+    "min_discount": 20,
+    "enabled": true
+  }
+]
