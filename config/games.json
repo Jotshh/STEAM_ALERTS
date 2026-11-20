@@ -46,5 +46,101 @@
     "appid": 4158870,
     "min_discount": 20,
     "enabled": true
+  },
+  {
+    "name": "Sons Of The Forest",
+    "appid": 1326470,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "9 Kings",
+    "appid": 2784470,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Bloons TD 6",
+    "appid": 960090,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Dorfromantik",
+    "appid": 1455840,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Overcooked! 2",
+    "appid": 728880,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Moonlighter",
+    "appid": 606150,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "REMATCH",
+    "appid": 2138720,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Raft",
+    "appid": 648800,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "State of Decay 2: Juggernaut Edition",
+    "appid": 495420,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Deep Rock Galactic",
+    "appid": 548430,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "DEVOUR",
+    "appid": 1274570,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Dark Hours",
+    "appid": 2208570,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Necesse",
+    "appid": 1169040,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Hogwarts Legacy",
+    "appid": 990080,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Keep Talking and Nobody Explodes",
+    "appid": 341800,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Fields of Mistria",
+    "appid": 2142790,
+    "min_discount": 20,
+    "enabled": true
   }
 ]
