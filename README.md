@@ -1,12 +1,12 @@
 # Promoção na Steam 
 
-![preview](./.github/preview.png)
-
 ![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat&logo=python&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions&logoColor=white)
 ![Steam](https://img.shields.io/badge/Steam-000000?style=flat&logo=steam&logoColor=white)
 ![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white)
 ![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=flat&logo=pytest&logoColor=white)
+
+![preview](./.github/preview.png)
 
 Monitor automático de promoções da Steam. Consulta os preços dos jogos configurados na loja brasileira (BRL) e envia alertas para um canal do Discord quando o desconto atinge o mínimo definido para cada jogo. Roda no GitHub Actions, sem servidor dedicado ou banco de dados. O custo de execução depende da visibilidade do repositório e do plano do GitHub.
 
@@ -158,6 +158,12 @@ python -m pytest
 ## Licença
 
 Este projeto está licenciado sob a MIT License.
+
+---
+
+## Contribuições
+
+Leia o guia em [CONTRIBUTING.md](./CONTRIBUTING.md) para configurar o ambiente, executar testes e enviar alterações.
 
 ---
 
