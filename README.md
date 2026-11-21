@@ -102,15 +102,52 @@ Em **Settings > Actions > General > Workflow permissions**, selecione **Read and
 
 ### 3. Escolher os jogos
 
-Edite `config/games.json`. O App ID aparece na URL da loja (`store.steampowered.com/app/1245620/...`).
+Abra [`config/games.json`](./config/games.json) e adicione um objeto dentro da lista.
+
+1. Acesse a página do jogo na Steam.
+2. Copie o número que aparece depois de `/app/` na URL. Por exemplo, em `store.steampowered.com/app/1245620/` o App ID é `1245620`.
+3. Use o nome que deseja ver nos alertas do Discord.
+4. Defina `min_discount` com o desconto mínimo que deve gerar um alerta.
+5. Mantenha `enabled` como `true` para ativar o jogo.
+
+Exemplo com Elden Ring:
 
 ```json
-{ "name": "Elden Ring", "appid": 1245620, "min_discount": 20, "enabled": true }
+[
+  {
+    "name": "Elden Ring",
+    "appid": 1245620,
+    "min_discount": 20,
+    "enabled": true
+  }
+]
 ```
 
-- `min_discount`: desconto mínimo, de 0 a 100. O alerta exige uma promoção ativa.
-- `enabled: false` pausa o jogo; para remover, apague o item.
-- Cada AppID deve aparecer apenas uma vez.
+Ao adicionar outros jogos, separa cada objeto por uma vírgula:
+
+```json
+[
+  {
+    "name": "Elden Ring",
+    "appid": 1245620,
+    "min_discount": 20,
+    "enabled": true
+  },
+  {
+    "name": "Stardew Valley",
+    "appid": 413150,
+    "min_discount": 30,
+    "enabled": true
+  }
+]
+```
+
+- `name`: nome exibido nos logs e nos alertas.
+- `appid`: número inteiro positivo da página do jogo na Steam. Não use o nome do jogo no lugar do número.
+- `min_discount`: desconto mínimo necessário, de `0` a `100`. O alerta só será enviado enquanto houver promoção ativa.
+- `enabled`: `true` monitora o jogo; `false` pausa o monitoramento sem precisar removê-lo.
+- Cada App ID deve aparecer uma única vez no arquivo.
+- Ao remover um jogo, exclua seu objeto completo e ajuste a vírgula do item anterior ou seguinte.
 
 ### 4. Executar localmente
 
