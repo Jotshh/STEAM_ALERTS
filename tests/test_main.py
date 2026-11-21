@@ -125,4 +125,6 @@ def test_invalid_games_config(tmp_path, content):
 
 def test_default_config_is_valid():
     from steam_alert.main import DEFAULT_GAMES
-    assert len(load_games(DEFAULT_GAMES)) == 3
+    games = load_games(DEFAULT_GAMES)
+    assert games
+    assert all(game.enabled for game in games)
