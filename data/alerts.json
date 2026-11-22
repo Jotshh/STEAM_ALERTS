@@ -48,10 +48,10 @@
     "last_price": 12495
   },
   "2138720": {
-    "is_on_sale": false,
-    "last_discount": 0,
-    "last_notified": null,
-    "last_price": 8900
+    "is_on_sale": true,
+    "last_discount": 60,
+    "last_notified": "2026-11-22T21:31:38+00:00",
+    "last_price": 4760
   },
   "2142790": {
     "is_on_sale": false,
