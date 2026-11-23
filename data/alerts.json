@@ -138,9 +138,9 @@
     "last_price": 2789
   },
   "990080": {
-    "is_on_sale": false,
-    "last_discount": 0,
-    "last_notified": null,
-    "last_price": 24999
+    "is_on_sale": true,
+    "last_discount": 90,
+    "last_notified": "2026-11-23T22:33:02+00:00",
+    "last_price": 2499
   }
 }
