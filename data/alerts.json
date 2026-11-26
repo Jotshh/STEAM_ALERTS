@@ -30,10 +30,10 @@
     "last_price": 2789
   },
   "1621690": {
-    "is_on_sale": false,
-    "last_discount": 0,
-    "last_notified": null,
-    "last_price": 5999
+    "is_on_sale": true,
+    "last_discount": 40,
+    "last_notified": "2026-11-26T22:48:02+00:00",
+    "last_price": 3599
   },
   "1817070": {
     "is_on_sale": true,
@@ -72,10 +72,10 @@
     "last_price": 3599
   },
   "2784470": {
-    "is_on_sale": true,
-    "last_discount": 50,
+    "is_on_sale": false,
+    "last_discount": 0,
     "last_notified": "2026-11-20T01:27:32+00:00",
-    "last_price": 1999
+    "last_price": 3999
   },
   "341800": {
     "is_on_sale": false,
@@ -132,10 +132,10 @@
     "last_price": 5990
   },
   "960090": {
-    "is_on_sale": false,
-    "last_discount": 0,
-    "last_notified": null,
-    "last_price": 2789
+    "is_on_sale": true,
+    "last_discount": 80,
+    "last_notified": "2026-11-26T22:48:02+00:00",
+    "last_price": 557
   },
   "990080": {
     "is_on_sale": true,
