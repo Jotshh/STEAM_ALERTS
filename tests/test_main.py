@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -20,11 +21,17 @@ class Env:
             {"name": "Cyberpunk 2077", "appid": 1091500, "min_discount": 30, "enabled": enabled}]))
         self.make_deal, self.discount, self.now = make_deal, discount, T0
         self.sent, self.fail_send, self.fail_fetch = [], False, False
+        self.initial, self.unavailable, self.invalid_price = 19999, False, False
 
     def fetch(self, appid, name, **kw):
         if self.fail_fetch:
             raise SteamError("falhou")
-        return self.make_deal(self.discount, appid=appid)
+        deal = self.make_deal(self.discount, initial=self.initial, appid=appid)
+        if self.unavailable:
+            return replace(deal, available=False)
+        if self.invalid_price:
+            return replace(deal, final_price=0)
+        return deal
 
     def send(self, url, deal, now, previous=None, **kw):
         if self.fail_send:
@@ -82,7 +89,9 @@ def test_sale_end_then_new_sale(env):
 def test_discord_failure_keeps_state_for_retry(env):
     env.fail_send = True
     assert env.run() == 1
-    assert env.state() is None
+    state = env.state()
+    assert state is not None and not state.is_on_sale and state.last_notified is None
+    assert state.lowest_prices["BRL"].price == 10000
     env.fail_send = False
     env.now = T0 + timedelta(minutes=30)
     assert env.run() == 0 and len(env.sent) == 1
@@ -96,6 +105,62 @@ def test_dry_run_changes_nothing(env):
 def test_steam_failure_returns_error(env):
     env.fail_fetch = True
     assert env.run() == 1 and env.sent == []
+
+
+def test_minimum_price_updates_below_discount_threshold_without_alert(env):
+    env.discount = 15
+
+    assert env.run() == 0
+
+    assert env.sent == []
+    assert env.state().lowest_prices["BRL"].price == 17000
+
+
+def test_steam_failure_preserves_existing_price_history(env):
+    store = AlertStore(env.alerts)
+    store.load()
+    store.record_lowest_price(env.make_deal(50, initial=20000), T0)
+    store.save()
+    env.fail_fetch = True
+
+    assert env.run() == 1
+
+    assert env.state().lowest_prices["BRL"].price == 10000
+
+
+def test_unavailable_game_preserves_price_and_alert_history(env):
+    assert env.run() == 0
+    previous = env.state()
+    env.unavailable = True
+    env.now = T0 + timedelta(hours=1)
+
+    assert env.run() == 0
+
+    current = env.state()
+    assert current.lowest_prices == previous.lowest_prices
+    assert current.is_on_sale == previous.is_on_sale
+    assert current.last_notified == previous.last_notified
+
+
+def test_invalid_price_preserves_existing_minimum(env):
+    assert env.run() == 0
+    env.invalid_price = True
+    env.now = T0 + timedelta(hours=1)
+
+    assert env.run() == 0
+
+    assert env.state().lowest_prices["BRL"].price == 10000
+
+
+def test_new_record_alone_does_not_send_duplicate_notification(env):
+    assert env.run() == 0
+    env.initial = 17999
+    env.now = T0 + timedelta(hours=1)
+
+    assert env.run() == 0
+
+    assert len(env.sent) == 1
+    assert env.state().lowest_prices["BRL"].price == 9000
 
 
 def test_disabled_game_ignored(tmp_path, make_deal):
