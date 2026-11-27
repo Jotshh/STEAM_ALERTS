@@ -113,14 +113,18 @@ def run(games_path: Path, alerts_path: Path, webhook_url: str | None, *,
             continue
 
         decision = evaluate(deal, game.min_discount, store.get(game.appid), now)
+        price_update = store.record_lowest_price(deal, now)
         logger.info("%s (%s): %d%% -> %s", deal.name, game.appid,
                     deal.discount_percent, decision.action.value)
-        if dry_run:
+        if dry_run or price_update is None:
             continue
 
         if decision.should_notify:
             try:
-                send(webhook_url, deal, now, decision.previous_discount, session=session)
+                send(
+                    webhook_url, deal, now, decision.previous_discount,
+                    session=session, price_update=price_update,
+                )
             except DiscordError as exc:
                 logger.error("Alerta de %s não enviado: %s", deal.name, exc)
                 send_failures += 1

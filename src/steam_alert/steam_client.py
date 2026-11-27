@@ -71,16 +71,24 @@ def parse_deal(appid: int, payload: Any, fallback_name: str) -> Deal:
         return _empty(appid, name, available=False, image=image)
 
     try:
-        initial = int(price["initial"])
-        final = int(price["final"])
-        discount = int(price["discount_percent"])
+        initial = price["initial"]
+        final = price["final"]
+        discount = price["discount_percent"]
+        currency = price.get("currency", "BRL")
     except (KeyError, TypeError, ValueError) as exc:
         raise SteamError(f"appid {appid}: preço inválido") from exc
+    if (any(isinstance(value, bool) or not isinstance(value, int)
+            for value in (initial, final, discount))
+            or not isinstance(currency, str)
+            or len(currency.strip()) != 3
+            or not currency.strip().isascii()
+            or not currency.strip().isalpha()):
+        raise SteamError(f"appid {appid}: preço inválido")
     if initial < 0 or final < 0 or not 0 <= discount <= 100:
         raise SteamError(f"appid {appid}: valores de preço fora do esperado")
 
     return Deal(
-        appid=appid, name=name, currency=str(price.get("currency", "BRL")),
+        appid=appid, name=name, currency=currency.strip().upper(),
         initial_price=initial, final_price=final, discount_percent=discount,
         url=STORE_URL.format(appid=appid), image_url=image,
     )

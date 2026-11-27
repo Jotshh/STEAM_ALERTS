@@ -8,6 +8,7 @@ from typing import Any, Callable
 
 import requests
 
+from .alert_manager import PriceHistoryUpdate
 from .steam_client import Deal
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,8 @@ def _color(discount: int) -> int:
     return 0x3498DB
 
 
-def build_embed(deal: Deal, now: datetime, previous_discount: int | None = None) -> dict:
+def build_embed(deal: Deal, now: datetime, previous_discount: int | None = None,
+                price_update: PriceHistoryUpdate | None = None) -> dict:
     cur = deal.currency
     description = (
         f"~~{format_price(deal.initial_price, cur)}~~\n"
@@ -50,6 +52,32 @@ def build_embed(deal: Deal, now: datetime, previous_discount: int | None = None)
             "value": f"{previous_discount}% → {deal.discount_percent}%",
             "inline": True,
         })
+    if price_update is not None:
+        history = price_update.record
+        if price_update.is_new_record and price_update.previous is not None:
+            fields.append({
+                "name": "✨ NOVO MENOR PREÇO REGISTRADO!",
+                "value": (
+                    f"Agora: **{format_price(history.price, history.currency)}**\n"
+                    "Menor preço anterior: "
+                    f"{format_price(price_update.previous.price, history.currency)}"
+                ),
+                "inline": False,
+            })
+        else:
+            value = format_price(history.price, history.currency)
+            if price_update.first_observation:
+                value += (
+                    "\nPrimeiro preço observado pelo monitor; não representa "
+                    "necessariamente o menor preço histórico da Steam."
+                )
+            elif history.price > deal.final_price:
+                value += "\nEste jogo já foi encontrado por um preço inferior ao atual."
+            fields.append({
+                "name": "Menor preço observado",
+                "value": value,
+                "inline": False,
+            })
     fields.append({
         "name": "\u200b",
         "value": f"[🛒 Ver promoção na Steam]({deal.url})",
@@ -60,7 +88,8 @@ def build_embed(deal: Deal, now: datetime, previous_discount: int | None = None)
         "title": deal.name,
         "url": deal.url,
         "description": description,
-        "color": _color(deal.discount_percent),
+        "color": 0xF1C40F if price_update and price_update.is_new_record
+        else _color(deal.discount_percent),
         "fields": fields,
         "footer": {"text": f"Detectado em {now.astimezone(BRT):%d/%m/%Y %H:%M} (Brasília)"},
         "timestamp": now.astimezone(timezone.utc).isoformat(),
@@ -86,11 +115,12 @@ def _retry_after(response: Any) -> float:
 
 def send_alert(webhook_url: str, deal: Deal, now: datetime,
                previous_discount: int | None = None, *, session: Any = None,
+               price_update: PriceHistoryUpdate | None = None,
                timeout: float = 10.0, max_retries: int = 3,
                sleep: Callable[[float], None] = time.sleep) -> None:
     payload = {
         "username": "Promoção na Steam",
-        "embeds": [build_embed(deal, now, previous_discount)],
+        "embeds": [build_embed(deal, now, previous_discount, price_update)],
     }
     http = session or requests
     for attempt in range(1, max_retries + 1):
