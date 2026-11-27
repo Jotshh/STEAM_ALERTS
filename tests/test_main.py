@@ -5,7 +5,8 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from steam_alert.alert_manager import AlertStore
-from steam_alert.discord_client import DiscordError
+from steam_alert.deal_detector import Action, Decision
+from steam_alert.discord_client import DiscordError, build_embed
 from steam_alert.main import ConfigError, load_games, run
 from steam_alert.steam_client import SteamError
 
@@ -22,6 +23,7 @@ class Env:
         self.make_deal, self.discount, self.now = make_deal, discount, T0
         self.sent, self.fail_send, self.fail_fetch = [], False, False
         self.initial, self.unavailable, self.invalid_price = 19999, False, False
+        self.embeds = []
 
     def fetch(self, appid, name, **kw):
         if self.fail_fetch:
@@ -37,6 +39,7 @@ class Env:
         if self.fail_send:
             raise DiscordError("falhou")
         self.sent.append((deal.discount_percent, previous))
+        self.embeds.append(build_embed(deal, now, previous, kw.get("price_update")))
 
     def run(self, **kw):
         return run(self.games, self.alerts, kw.pop("webhook", WEBHOOK), fetch=self.fetch,
@@ -161,6 +164,44 @@ def test_new_record_alone_does_not_send_duplicate_notification(env):
 
     assert len(env.sent) == 1
     assert env.state().lowest_prices["BRL"].price == 9000
+
+
+def test_failed_new_record_alert_retries_with_highlight_and_clears_pending(env):
+    store = AlertStore(env.alerts)
+    store.load()
+    previous_deal = env.make_deal(50, initial=11980, appid=1091500)
+    store.record_lowest_price(previous_deal, T0)
+    store.apply(previous_deal, Decision(Action.NEW_SALE), T0)
+    store.save()
+
+    env.discount, env.initial = 60, 9975
+    env.now = T0 + timedelta(hours=1)
+    env.fail_send = True
+    assert env.run() == 1
+
+    failed_state = env.state()
+    assert failed_state.lowest_prices["BRL"].price == 3990
+    pending = failed_state.pending_price_notifications["BRL"]
+    assert pending.is_new_record
+    assert pending.record.price == 3990 and pending.previous.price == 5990
+    assert env.sent == [] and env.embeds == []
+
+    env.fail_send = False
+    env.now += timedelta(minutes=30)
+    assert env.run() == 0
+
+    assert len(env.sent) == 1
+    record_field = next(
+        field for field in env.embeds[0]["fields"]
+        if field["name"] == "✨ NOVO MENOR PREÇO REGISTRADO!"
+    )
+    assert "R$ 39,90" in record_field["value"]
+    assert "R$ 59,90" in record_field["value"]
+    assert env.state().pending_price_notifications == {}
+
+    env.now += timedelta(minutes=30)
+    assert env.run() == 0
+    assert len(env.sent) == 1
 
 
 def test_disabled_game_ignored(tmp_path, make_deal):
