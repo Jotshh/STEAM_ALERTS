@@ -41,6 +41,7 @@ O monitor roda sozinho a cada 30 minutos pelo GitHub Actions. Para executar na h
 - Cor do embed muda conforme o tamanho do desconto
 - Controle de duplicidade por App ID, desconto e estado da promoção
 - Histórico em `data/alerts.json`, salvo pelo próprio workflow com commit automático só quando há mudança
+- Menor preço observado por App ID e moeda, com data/hora e destaque de novo mínimo nos alertas
 - Tentativa de novo envio na próxima execução se o Discord falhar
 
 ---
@@ -55,6 +56,28 @@ O monitor roda sozinho a cada 30 minutos pelo GitHub Actions. Para executar na h
 | Mesmo desconto, 7 dias ou mais desde o último alerta | Sim |
 | Desconto caiu abaixo do mínimo ou a promoção acabou | Não, só atualiza o estado |
 | Nova promoção depois de uma encerrada | Sim |
+
+---
+
+## Histórico de Menor Preço
+
+Em cada consulta válida de um jogo com preço pago, o monitor registra em `data/alerts.json`
+o menor preço observado, em centavos, junto da moeda e da data/hora. Esse registro é
+atualizado mesmo quando o desconto fica abaixo do mínimo configurado para alertas.
+
+Quando o preço atual fica abaixo do mínimo já observado na mesma moeda, o embed destaca
+**NOVO MENOR PREÇO REGISTRADO** e mostra o preço anterior. Se o preço atual estiver acima
+do mínimo salvo, o embed informa que o jogo já foi encontrado por um preço inferior.
+Na primeira observação, o alerta deixa claro que se trata do primeiro preço visto pelo
+monitor — não de um recorde histórico da Steam.
+
+Cada moeda mantém um histórico independente: o monitor não converte nem compara moedas
+diferentes e não apaga o registro anterior quando a moeda da consulta muda. Consultas com
+erro, jogo indisponível, preço ausente/inválido e jogos gratuitos não alteram o histórico.
+Os dados novos são armazenados junto aos campos existentes por App ID no próprio
+`data/alerts.json`, sem exigir migração ou remoção do arquivo.
+Se o envio de um alerta de novo recorde falhar, o evento fica pendente no mesmo JSON e é
+reapresentado no próximo envio elegível; após o envio bem-sucedido, a pendência é removida.
 
 ---
 

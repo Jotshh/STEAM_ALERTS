@@ -113,18 +113,34 @@ def run(games_path: Path, alerts_path: Path, webhook_url: str | None, *,
             continue
 
         decision = evaluate(deal, game.min_discount, store.get(game.appid), now)
+        price_update = store.record_lowest_price(deal, now)
         logger.info("%s (%s): %d%% -> %s", deal.name, game.appid,
                     deal.discount_percent, decision.action.value)
-        if dry_run:
+        if dry_run or price_update is None:
             continue
 
         if decision.should_notify:
+            pending_update = store.get_pending_price_notification(
+                game.appid, price_update.record.currency
+            )
+            notify_price_update = (
+                price_update if price_update.is_new_record
+                else pending_update or price_update
+            )
             try:
-                send(webhook_url, deal, now, decision.previous_discount, session=session)
+                send(
+                    webhook_url, deal, now, decision.previous_discount,
+                    session=session, price_update=notify_price_update,
+                )
             except DiscordError as exc:
+                if notify_price_update.is_new_record:
+                    store.mark_price_notification_pending(game.appid, notify_price_update)
                 logger.error("Alerta de %s não enviado: %s", deal.name, exc)
                 send_failures += 1
                 continue
+            store.clear_pending_price_notification(
+                game.appid, price_update.record.currency
+            )
         store.apply(deal, decision, now)
 
     if not dry_run:

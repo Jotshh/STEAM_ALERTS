@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import pytest
 import requests
 
+from steam_alert.alert_manager import LowestPrice, PriceHistoryUpdate
 from steam_alert.discord_client import DiscordError, build_embed, format_price, send_alert
 
 NOW = datetime(2026, 11, 19, 21, 0, tzinfo=timezone.utc)
@@ -50,6 +51,37 @@ def test_embed_content(make_deal):
 def test_embed_shows_previous_discount(make_deal):
     embed = build_embed(make_deal(60), NOW, previous_discount=50)
     assert any("50% → 60%" in f["value"] for f in embed["fields"])
+
+
+def test_embed_highlights_new_lowest_price(make_deal):
+    previous = LowestPrice(12000, "BRL", NOW)
+    update = PriceHistoryUpdate(
+        LowestPrice(9999, "BRL", NOW), previous, True, False
+    )
+
+    embed = build_embed(make_deal(50), NOW, price_update=update)
+
+    record_field = next(
+        field for field in embed["fields"]
+        if field["name"] == "✨ NOVO MENOR PREÇO REGISTRADO!"
+    )
+    assert "R$ 99,99" in record_field["value"]
+    assert "R$ 120,00" in record_field["value"]
+    assert embed["color"] == 0xF1C40F
+    assert "Ver promoção na Steam" in embed["fields"][-1]["value"]
+
+
+def test_embed_distinguishes_first_observation_from_steam_record(make_deal):
+    update = PriceHistoryUpdate(LowestPrice(9999, "BRL", NOW), None, False, True)
+
+    embed = build_embed(make_deal(50), NOW, price_update=update)
+
+    history_field = next(
+        field for field in embed["fields"]
+        if field["name"] == "Menor preço observado"
+    )
+    assert "Primeiro preço observado pelo monitor" in history_field["value"]
+    assert "menor preço histórico da Steam" in history_field["value"]
 
 
 def test_send_success(make_deal):

@@ -66,6 +66,16 @@ def test_invalid_price_values():
                                                   "discount_percent": 1}), "x")
 
 
+@pytest.mark.parametrize("price", [
+    {"currency": "BRL", "initial": 100, "final": 50.5, "discount_percent": 50},
+    {"currency": "", "initial": 100, "final": 50, "discount_percent": 50},
+    {"currency": "BRL", "initial": True, "final": 50, "discount_percent": 50},
+])
+def test_invalid_price_shape_is_rejected(price):
+    with pytest.raises(SteamError):
+        parse_deal(APPID, payload(price_overview=price), "x")
+
+
 def test_non_json_response_raises():
     with pytest.raises(SteamError):
         fetch_deal(APPID, session=FakeSession([FakeResponse(invalid=True)]),
