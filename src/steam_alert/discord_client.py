@@ -58,7 +58,7 @@ def build_embed(deal: Deal, now: datetime, previous_discount: int | None = None,
             fields.append({
                 "name": "✨ NOVO MENOR PREÇO REGISTRADO!",
                 "value": (
-                    f"Agora: **{format_price(history.price, history.currency)}**\n"
+                    f"Novo menor preço: **{format_price(history.price, history.currency)}**\n"
                     "Menor preço anterior: "
                     f"{format_price(price_update.previous.price, history.currency)}"
                 ),
